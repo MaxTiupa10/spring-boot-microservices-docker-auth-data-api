@@ -37,11 +37,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody AuthRequest req) {
-        // ВИПРАВЛЕНО: req.email()
         UserEntity user = userRepository.findByEmail(req.email());
 
-        // Тут user - це звичайний клас (@Data), тому getPasswordHash() залишається
-        // А req - це record, тому req.password()
         if (user == null || !passwordEncoder.matches(req.password(), user.getPasswordHash())) {
             return ResponseEntity.status(401).build();
         }

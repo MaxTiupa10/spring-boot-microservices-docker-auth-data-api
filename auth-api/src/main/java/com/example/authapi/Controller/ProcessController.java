@@ -33,10 +33,9 @@ class ProcessController {
 
     @PostMapping("/process")
     public ResponseEntity<?> process(@RequestBody ProcessRequest req, @AuthenticationPrincipal String email) {
-        // 1. Get User
+
         UserEntity user = userRepository.findByEmail(email);
 
-        // 2. Call Service B
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Internal-Token", internalToken);
         HttpEntity<ProcessRequest> entity = new HttpEntity<>(req, headers);
@@ -45,13 +44,11 @@ class ProcessController {
             ResponseEntity<ProcessResponse> response = restTemplate.exchange(
                     serviceBUrl, HttpMethod.POST, entity, ProcessResponse.class);
 
-            // ВИПРАВЛЕНО: response.getBody().result() замість getResult()
             String result = response.getBody().result();
 
-            // 3. Save Log
             logRepository.save(ProcessingLog.builder()
-                    .userId(user.getId()) // user - це Entity, там є getId()
-                    .inputText(req.text()) // ВИПРАВЛЕНО: req - це Record, тому text()
+                    .userId(user.getId())
+                    .inputText(req.text())
                     .outputText(result)
                     .createdAt(LocalDateTime.now())
                     .build());

@@ -8,6 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface LogRepository extends JpaRepository<ProcessingLog, UUID> {
-
 }
 

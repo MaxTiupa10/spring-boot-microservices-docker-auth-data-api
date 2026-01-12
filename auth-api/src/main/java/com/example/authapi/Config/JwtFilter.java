@@ -30,8 +30,8 @@ public class JwtFilter extends OncePerRequestFilter {
                         new UsernamePasswordAuthenticationToken(email, null, Collections.emptyList());
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             } catch (Exception e) {
-
-
+                System.err.println("JWT Authentication failed: " + e.getMessage());
+                SecurityContextHolder.clearContext();
             }
         }
         chain.doFilter(request, response);
