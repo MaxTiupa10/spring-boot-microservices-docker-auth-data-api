@@ -1,0 +1,47 @@
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: minitestdb
+    ports:
+      - "5433:5433"
+    networks:
+      - app-network
+
+  auth-api:
+    build: ./auth-api
+    container_name: auth-service
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/minitestdb
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: password
+      # Будь-який довгий рядок для підпису токенів
+      JWT_SECRET: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      # Секретний токен для спілкування між сервісами
+      INTERNAL_TOKEN: my-secret-internal-key
+      SERVICE_B_URL: http://data-api:8081/api/transform
+    depends_on:
+      - postgres
+      - data-api
+    networks:
+      - app-network
+
+  data-api:
+    build: ./data-api
+    container_name: data-service
+    ports:
+      - "8081:8081"
+    environment:
+      INTERNAL_TOKEN: my-secret-internal-key
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
